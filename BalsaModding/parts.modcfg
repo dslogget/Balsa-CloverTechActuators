@@ -6,13 +6,13 @@ ModCFG
 	leastGameVersion = 0.9.0
 	Parts
 	{
-		part = Addons/Rotator/Rotator.cfg
+		part = Addons/CloverTechActuators/Rotator.cfg
 	}
 	Plugin
 	{
 		name = CloverTechActuator
 		description = For moving stuff
-		asmpath = Addons/Rotator/CloverTechActuator.dll
+		asmpath = Addons/CloverTechActuators/CloverTechActuator.dll
 		order = 10
 	}
 }

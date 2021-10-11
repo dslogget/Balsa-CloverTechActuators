@@ -24,10 +24,18 @@ namespace CloverTech
         public Vector3 parentAxis;
         [SerializeField]
         [CfgField(CfgContext.Config, null, false, null)]
-        public float angleMultiplier = 4.0f;
+        bool parentAxisSet = false;
         [SerializeField]
         [CfgField(CfgContext.Config, null, false, null)]
         public Vector3 parentRotationPoint;
+        [SerializeField]
+        [CfgField(CfgContext.Config, null, false, null)]
+        bool parentRotationPointSet = false;
+
+        [SerializeField]
+        [CfgField(CfgContext.Config, null, false, null)]
+        public float angleMultiplier = 4.0f;
+
 
         [SerializeField]
         [CfgField(CfgContext.Config, null, false, null)]
@@ -49,24 +57,44 @@ namespace CloverTech
 
         public override void ActuatorFixedUpdate()
         {
-            if (parentRotationPoint == null)
+            if (!parentRotationPointSet)
             {
+                parentRotationPointSet = true;
                 parentRotationPoint = part.Parent.transform.InverseTransformPoint(transform.TransformPoint(part.attachPoint));
             }
-            if (parentAxis == null)
+            if (!parentAxisSet)
             {
-                parentAxis = part.Parent.transform.InverseTransformDirection(transform.TransformDirection(0, 1, 0));
+                parentAxisSet = true;
+                parentAxis = part.Parent.transform.InverseTransformDirection(transform.TransformDirection(new Vector3(1.0f, 0.0f, 0.0f).normalized));
             }
-            
+
             Vector3 worldAxis = part.Parent.transform.TransformDirection(parentAxis);
             Vector3 worldPoint = part.Parent.transform.TransformPoint(parentRotationPoint);
-            AbsoluteRotateAround(worldPoint, worldAxis, currentAngle);
+            Vector3 startPos = transform.position;
+            Quaternion startRot = transform.rotation;
+
+            transform.localPosition = initialPositionToParent;
+            transform.localRotation = initialRotationToParent;
+            transform.RotateAround(worldPoint, worldAxis, currentAngle);
+            Vector3 endPos = transform.position;
+            Quaternion endRot = transform.rotation;
+            transform.rotation = startRot;
+            transform.position = startPos;
+
+            Quaternion otherRot = part.Parent.transform.rotation * initialRotationToParent * Quaternion.Euler(0, currentAngle, 0);
+            //Debug.LogError($"{transCopy} and {otherRot}");
+            part.SetPosRotRecursive(endPos, endRot);
+
+            //AbsoluteRotateAround(worldPoint, worldAxis, currentAngle);
+
+            //transform.localRotation = Quaternion.Euler(0, currentAngle, 0);
 
         }
 
         public override void OnReceiveAxisState(float axis)
         {
-            currentAngle = Mathf.LerpAngle(minAngle, maxAngle, axis);
+            axis = (axis + 1.0f)*0.5f;
+            currentAngle = Mathf.Lerp(minAngle, maxAngle, axis);
         }
     }
 
