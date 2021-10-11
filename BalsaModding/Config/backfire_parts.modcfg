@@ -1,0 +1,34 @@
+ModCFG
+{
+	title = Backfire
+	author = JDSA
+	modVersion = 0.0.0
+	leastGameVersion = 0.9.0
+	Parts
+	{
+		part = Addons/JDSA/JDSAHiPow.cfg
+		part = Addons/JDSA/JDSAInlineBattery.cfg
+		part = Addons/JDSA/JDSACoondawgStraight6.cfg
+		part = Addons/JDSA/JoocyFuelPod.cfg
+		part = Addons/JDSA/R1-M Adapter.cfg
+		part = Addons/JDSA/TwinFangMotor.cfg
+		part = Addons/JDSA/JDSASideWheel.cfg
+		part = Addons/JDSA/JoocyBatteryPod.cfg
+		part = Addons/JDSA/SAS.cfg
+		part = Addons/JDSA/EngineHousing.cfg
+		part = Addons/JDSA/FlyjammerHousing.cfg
+		part = Addons/JDSA/FlyJammerTurbine.cfg
+		part = Addons/JDSA/FlyjammerAIO.cfg
+		part = Addons/JDSA/JDSAEDF.cfg
+		part = Addons/JDSA/BalsaCopterbladeUpper.cfg
+		part = Addons/JDSA/Controller.cfg
+		part = Addons/JDSA/BalsaHull.cfg
+	}
+	Plugin
+	{
+		name = JDSAsas
+		description = Stabilizer Systems - JDSA
+		asmpath = Addons/JDSA/JDSAsas.dll
+		order = -1
+	}
+}

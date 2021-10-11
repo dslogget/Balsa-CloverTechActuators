@@ -1,0 +1,39 @@
+ManifestFileVersion: 0
+CRC: 3392244722
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 0770493840e58ff508f73094d8f40f5a
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 1b17ddf6f4d0334d55243a7cef4bd2ee
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 4
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 23
+  Script: {instanceID: 0}
+- Class: 33
+  Script: {instanceID: 0}
+- Class: 43
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+- Class: 54
+  Script: {instanceID: 0}
+- Class: 64
+  Script: {instanceID: 0}
+- Class: 114
+  Script: {fileID: 284495653, guid: b3215a61a5b041443bbc705e4f8872d0, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: e9cbbb740c6898c429baaa3eb0b30fa1, type: 3}
+- Class: 115
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/__partABtoolsExport/SAS.prefab
+Dependencies: []
