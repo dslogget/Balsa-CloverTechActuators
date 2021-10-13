@@ -8,10 +8,11 @@ using UnityEditor;
 using Modules;
 using CfgFields;
 using FSControl;
+using Construction;
 
 namespace CloverTech
 {
-    abstract public class Actuator : PartModule, IInputAxisReceiver
+    abstract public class Actuator : PartModule, IInputAxisReceiver, IConstructionEvents
     {
         [SerializeField]
         [CfgField(CfgContext.Config, null, false, null)]
@@ -28,19 +29,46 @@ namespace CloverTech
 
         abstract public void ActuatorFixedUpdate();
 
+        abstract public void OnPartBeginMoveCallback();
+        abstract public void OnPartMovingCallback();
+        abstract public void OnPartEndMoveCallback();
+
+        protected void OnEnable() => PartOps.Add((IConstructionEvents)this);
+        protected void OnDisable() => PartOps.Remove((IConstructionEvents)this);
+
+
+        protected bool moving = false;
+        protected bool finishedMoving = true;
+        protected bool needUpdate = false;
+
         public void FixedUpdate()
         {
-            if (!this.part.spawned || this.Rb == null || (Object)this.vehicle == (Object)null || !PartModuleUtil.CheckCanApplyForces((PartModule)this) || !this.vehicle.IsAuthorityOrBot || part.Parent == null)
+            if (!this.part.spawned || this.Rb == null || (Object)this.vehicle == (Object)null || !PartModuleUtil.CheckCanApplyForces((PartModule)this) 
+                || !this.vehicle.IsAuthorityOrBot || part.Parent == null || part.PtrSelectable.Selected)
                 return;
 
-            if (!initialPositionsSet)
+            if (finishedMoving)
             {
                 initialPositionsSet = true;
                 initialPositionToParent = transform.localPosition;
                 initialRotationToParent = transform.localRotation;
             }
 
-            ActuatorFixedUpdate();
+            if (initialPositionsSet)
+            {
+                ActuatorFixedUpdate();
+                
+            }
+            needUpdate = true;
+            finishedMoving = false;
+        }
+
+        public void LateUpdate()
+        {
+            if (needUpdate)
+            {
+                EditorLogic.VAsys.NeedUpdate();
+            }
         }
 
         public static void RelativeRotateAroundRecursive(Part targetPart, Vector3 worldPoint, Vector3 worldAxis, float angle)
@@ -104,5 +132,28 @@ namespace CloverTech
             }
         }
 
+        public void OnPartBeginMove(Part part)
+        {
+            moving = true;
+            OnPartBeginMoveCallback();
+        }
+
+        public void OnPartMoving(Part part, ref Vector3 wpos, ref Quaternion wrot)
+        {
+            //initialPositionsSet = true;
+            //initialPositionToParent = transform.localPosition;
+            //initialRotationToParent = transform.localRotation;
+            OnPartMovingCallback();
+        }
+
+        public void OnPartEndMove(Part part)
+        {
+            //initialPositionsSet = true;
+            //initialPositionToParent = transform.localPosition;
+            //initialRotationToParent = transform.localRotation;
+            OnPartEndMoveCallback();
+            finishedMoving = true;
+            moving = false;
+        }
     }
 }

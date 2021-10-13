@@ -14,11 +14,6 @@ namespace CloverTech
 
     public class Rotator : Actuator
     {
-        private FSInputState inputState;
-        private float diffAngle = 0;
-
-        private Quaternion originalRotation;
-
         [SerializeField]
         [CfgField(CfgContext.Config, null, false, null)]
         public Vector3 parentAxis;
@@ -57,12 +52,17 @@ namespace CloverTech
 
         public override void ActuatorFixedUpdate()
         {
-            if (!parentRotationPointSet)
+            if (moving)
+            {
+                return;
+            }
+
+            if (finishedMoving && !parentRotationPointSet)
             {
                 parentRotationPointSet = true;
                 parentRotationPoint = part.Parent.transform.InverseTransformPoint(transform.TransformPoint(part.attachPoint));
             }
-            if (!parentAxisSet)
+            if (finishedMoving && !parentAxisSet)
             {
                 parentAxisSet = true;
                 parentAxis = part.Parent.transform.InverseTransformDirection(transform.TransformDirection(new Vector3(1.0f, 0.0f, 0.0f).normalized));
@@ -95,6 +95,31 @@ namespace CloverTech
         {
             axis = (axis + 1.0f)*0.5f;
             currentAngle = Mathf.Lerp(minAngle, maxAngle, axis);
+        }
+
+        public override void OnPartBeginMoveCallback()
+        {
+            Vector3 startPos = transform.position;
+            Quaternion startRot = transform.rotation;
+            transform.localPosition = initialPositionToParent;
+            transform.localRotation = initialRotationToParent;
+            Vector3 endPos = transform.position;
+            Quaternion endRot = transform.rotation;
+            transform.rotation = startRot;
+            transform.position = startPos;
+            part.SetPosRotRecursive(endPos, endRot);
+
+            return;
+        }
+
+        public override void OnPartMovingCallback()
+        {
+            return;
+        }
+
+        public override void OnPartEndMoveCallback()
+        {
+            return;
         }
     }
 
