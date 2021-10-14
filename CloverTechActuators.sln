@@ -2,7 +2,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30320.27
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloverTechActuators", "BalsaModding\CloverTechActuators.csproj", "{7A123D7E-8C15-458A-90AD-A746FC0046C2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloverTechActuators", "CloverTechActuators\CloverTechActuators.csproj", "{7A123D7E-8C15-458A-90AD-A746FC0046C2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

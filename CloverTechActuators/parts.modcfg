@@ -1,0 +1,18 @@
+ModCFG
+{
+	title = Backfire
+	author = JDSA
+	modVersion = 0.0.0
+	leastGameVersion = 0.9.0
+	Parts
+	{
+		part = Addons/CloverTechActuators/Rotator.cfg
+	}
+	Plugin
+	{
+		name = CloverTechActuator
+		description = For moving stuff
+		asmpath = Addons/CloverTechActuators/CloverTechActuator.dll
+		order = 10
+	}
+}
