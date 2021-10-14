@@ -41,11 +41,18 @@ namespace CloverTech
         protected bool finishedMoving = true;
         protected bool needUpdate = false;
 
+        public override void OnModuleSpawn()
+        {
+
+        }
+
         public void FixedUpdate()
         {
             if (!this.part.spawned || this.Rb == null || (Object)this.vehicle == (Object)null || !PartModuleUtil.CheckCanApplyForces((PartModule)this) 
                 || !this.vehicle.IsAuthorityOrBot || part.Parent == null || part.PtrSelectable.Selected)
                 return;
+
+            needUpdate = false;
 
             if (finishedMoving)
             {
@@ -57,9 +64,8 @@ namespace CloverTech
             if (initialPositionsSet)
             {
                 ActuatorFixedUpdate();
-                
             }
-            needUpdate = true;
+
             finishedMoving = false;
         }
 
@@ -97,6 +103,21 @@ namespace CloverTech
             {
                 TranslateRotateRecursive(link, trans, rot);
             }
+        }
+
+
+        public void RotateAround(Vector3 rotPoint, Vector3 rotAxis, float angle)
+        {
+            Vector3 startPos = transform.position;
+            Quaternion startRot = transform.rotation;
+            transform.localPosition = initialPositionToParent;
+            transform.localRotation = initialRotationToParent;
+            transform.RotateAround(rotPoint, rotAxis, angle);
+            Vector3 endPos = transform.position;
+            Quaternion endRot = transform.rotation;
+            transform.rotation = startRot;
+            transform.position = startPos;
+            part.SetPosRotRecursive(endPos, endRot);
         }
 
         public void ResetToInitial()

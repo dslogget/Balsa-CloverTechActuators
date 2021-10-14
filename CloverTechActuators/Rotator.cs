@@ -42,10 +42,9 @@ namespace CloverTech
         [CfgField(CfgContext.Config, null, false, null)]
         public float currentAngle = 0;
 
-        public override void OnModuleSpawn()
-        {
-            
-        }
+        private float lastAngle = 0;
+
+
 
         protected string GetModuleName() => "CloverTech.Rotator";
         public override string GetActionName() => "Rotator";
@@ -68,27 +67,13 @@ namespace CloverTech
                 parentAxis = part.Parent.transform.InverseTransformDirection(transform.TransformDirection(new Vector3(1.0f, 0.0f, 0.0f).normalized));
             }
 
-            Vector3 worldAxis = part.Parent.transform.TransformDirection(parentAxis);
-            Vector3 worldPoint = part.Parent.transform.TransformPoint(parentRotationPoint);
-            Vector3 startPos = transform.position;
-            Quaternion startRot = transform.rotation;
-
-            transform.localPosition = initialPositionToParent;
-            transform.localRotation = initialRotationToParent;
-            transform.RotateAround(worldPoint, worldAxis, currentAngle);
-            Vector3 endPos = transform.position;
-            Quaternion endRot = transform.rotation;
-            transform.rotation = startRot;
-            transform.position = startPos;
-
-            Quaternion otherRot = part.Parent.transform.rotation * initialRotationToParent * Quaternion.Euler(0, currentAngle, 0);
-            //Debug.LogError($"{transCopy} and {otherRot}");
-            part.SetPosRotRecursive(endPos, endRot);
-
-            //AbsoluteRotateAround(worldPoint, worldAxis, currentAngle);
-
-            //transform.localRotation = Quaternion.Euler(0, currentAngle, 0);
-
+            if (lastAngle != currentAngle)
+            {
+                Vector3 worldAxis = part.Parent.transform.TransformDirection(parentAxis);
+                Vector3 worldPoint = part.Parent.transform.TransformPoint(parentRotationPoint);
+                RotateAround(worldPoint, worldAxis, currentAngle);
+                needUpdate = true;
+            }
         }
 
         public override void OnReceiveAxisState(float axis)
