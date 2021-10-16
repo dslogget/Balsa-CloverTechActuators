@@ -43,7 +43,7 @@ namespace CloverTech
 
         public override void OnModuleSpawn()
         {
-
+            
         }
 
         public void FixedUpdate()
@@ -73,7 +73,7 @@ namespace CloverTech
         {
             if (needUpdate)
             {
-                EditorLogic.VAsys.NeedUpdate();
+                EditorLogic.VAsys?.NeedUpdate();
             }
         }
 

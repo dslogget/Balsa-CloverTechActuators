@@ -8,12 +8,20 @@ using UnityEditor;
 using Modules;
 using CfgFields;
 using FSControl;
+using GameEventsData;
+using UnityEngine.Events;
 
 namespace CloverTech 
 { 
 
     public class Rotator : Actuator
     {
+        [SerializeField]
+        [CfgField(CfgContext.Config, null, false, null)]
+        public Vector3 axis = new Vector3(0,0,1);
+        [SerializeField]
+        [CfgField(CfgContext.Config, null, false, null)]
+        public Vector3 pivotPoint = new Vector3(0, 0, 0);
         [SerializeField]
         [CfgField(CfgContext.Config, null, false, null)]
         public Vector3 parentAxis;
@@ -49,6 +57,18 @@ namespace CloverTech
         protected string GetModuleName() => "CloverTech.Rotator";
         public override string GetActionName() => "Rotator";
 
+        public void Awake()
+        {
+            GameEvents.Game.OnSceneTransitionStart.AddListener(new UnityAction<FromToAction<GameScenes>>(this.OnSceneLoadBegin));
+            GameEvents.Game.OnSceneTransitionComplete.AddListener(new UnityAction<FromToAction<GameScenes>>(this.OnSceneLoadEnd));
+        }
+
+        public void OnDestroy()
+        {
+            GameEvents.Game.OnSceneTransitionStart.RemoveListener(new UnityAction<FromToAction<GameScenes>>(this.OnSceneLoadBegin));
+            GameEvents.Game.OnSceneTransitionComplete.RemoveListener(new UnityAction<FromToAction<GameScenes>>(this.OnSceneLoadEnd));
+        }
+
         public override void ActuatorFixedUpdate()
         {
             if (moving)
@@ -56,15 +76,10 @@ namespace CloverTech
                 return;
             }
 
-            if (finishedMoving && !parentRotationPointSet)
+            if (finishedMoving)
             {
-                parentRotationPointSet = true;
-                parentRotationPoint = part.Parent.transform.InverseTransformPoint(transform.TransformPoint(part.attachPoint));
-            }
-            if (finishedMoving && !parentAxisSet)
-            {
-                parentAxisSet = true;
-                parentAxis = part.Parent.transform.InverseTransformDirection(transform.TransformDirection(new Vector3(1.0f, 0.0f, 0.0f).normalized));
+                parentRotationPoint = part.Parent.transform.InverseTransformPoint(transform.TransformPoint(pivotPoint));
+                parentAxis = part.Parent.transform.InverseTransformDirection(transform.TransformDirection(axis.normalized));
             }
 
             if (lastAngle != currentAngle)
@@ -106,6 +121,19 @@ namespace CloverTech
         {
             return;
         }
+
+        private void OnSceneLoadBegin(FromToAction<GameScenes> evt)
+        {
+            moving = true;
+            OnPartBeginMoveCallback();
+        }
+
+        private void OnSceneLoadEnd(FromToAction<GameScenes> evt)
+        {
+            OnPartBeginMoveCallback();
+            moving = false;
+        }
+
     }
 
 }

@@ -1,12 +1,12 @@
 ManifestFileVersion: 0
-CRC: 3392244722
+CRC: 2045246005
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 0770493840e58ff508f73094d8f40f5a
+    Hash: e7f83e0d490feb53a0d244f53f74e77c
   TypeTreeHash:
     serializedVersion: 2
-    Hash: 1b17ddf6f4d0334d55243a7cef4bd2ee
+    Hash: be661463ae5983fd415659d27fb1a158
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -23,17 +23,13 @@ ClassTypes:
   Script: {instanceID: 0}
 - Class: 48
   Script: {instanceID: 0}
-- Class: 54
-  Script: {instanceID: 0}
 - Class: 64
   Script: {instanceID: 0}
 - Class: 114
   Script: {fileID: 284495653, guid: b3215a61a5b041443bbc705e4f8872d0, type: 3}
-- Class: 114
-  Script: {fileID: 11500000, guid: e9cbbb740c6898c429baaa3eb0b30fa1, type: 3}
 - Class: 115
   Script: {instanceID: 0}
 SerializeReferenceClassIdentifiers: []
 Assets:
-- Assets/__partABtoolsExport/SAS.prefab
+- Assets/__partABtoolsExport/CloverTechRotator.prefab
 Dependencies: []
