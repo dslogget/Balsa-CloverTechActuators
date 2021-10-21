@@ -1,9 +1,9 @@
 ModCFG
 {
-	title = Backfire
-	author = JDSA
+	title = CloverTechActuators
+	author = DannyClover
 	modVersion = 0.0.0
-	leastGameVersion = 0.9.0
+	requiresGameVersion = 0.101.0
 	Parts
 	{
 		part = Addons/CloverTechActuators/Rotator.cfg

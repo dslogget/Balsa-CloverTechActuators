@@ -67,25 +67,32 @@ namespace CloverTech
         {
             GameEvents.Game.OnSceneTransitionStart.RemoveListener(new UnityAction<FromToAction<GameScenes>>(this.OnSceneLoadBegin));
             GameEvents.Game.OnSceneTransitionComplete.RemoveListener(new UnityAction<FromToAction<GameScenes>>(this.OnSceneLoadEnd));
+            rotAxisMarker?.gameObject?.DestroyGameObject();
+            rotAxisMarker = null;
         }
+
+        public Construction.UI.Markers.Marker_Ray rotAxisMarker;
 
         public override void ActuatorFixedUpdate()
         {
+
+
             if (moving)
             {
                 return;
             }
+            //Debug.LogError("test");
 
             if (finishedMoving)
             {
-                parentRotationPoint = part.Parent.transform.InverseTransformPoint(transform.TransformPoint(pivotPoint));
-                parentAxis = part.Parent.transform.InverseTransformDirection(transform.TransformDirection(axis.normalized));
+                parentRotationPoint = ParentTransform.InverseTransformPoint(transform.TransformPoint(pivotPoint));
+                parentAxis = ParentTransform.InverseTransformDirection(transform.TransformDirection(axis.normalized));
             }
 
             if (lastAngle != currentAngle)
             {
-                Vector3 worldAxis = part.Parent.transform.TransformDirection(parentAxis);
-                Vector3 worldPoint = part.Parent.transform.TransformPoint(parentRotationPoint);
+                Vector3 worldAxis = ParentTransform.TransformDirection(parentAxis);
+                Vector3 worldPoint = ParentTransform.TransformPoint(parentRotationPoint);
                 RotateAround(worldPoint, worldAxis, currentAngle);
                 needUpdate = true;
             }
@@ -99,16 +106,7 @@ namespace CloverTech
 
         public override void OnPartBeginMoveCallback()
         {
-            Vector3 startPos = transform.position;
-            Quaternion startRot = transform.rotation;
-            transform.localPosition = initialPositionToParent;
-            transform.localRotation = initialRotationToParent;
-            Vector3 endPos = transform.position;
-            Quaternion endRot = transform.rotation;
-            transform.rotation = startRot;
-            transform.position = startPos;
-            part.SetPosRotRecursive(endPos, endRot);
-
+            ResetToInitial();
             return;
         }
 
@@ -132,6 +130,23 @@ namespace CloverTech
         {
             OnPartBeginMoveCallback();
             moving = false;
+        }
+
+
+        public override void OnLateUpdateCallback()
+        {
+            if (needUpdate && initialPositionsSet) {
+                if (rotAxisMarker == null)
+                {
+                    rotAxisMarker = UnityEngine.Object.Instantiate<Construction.UI.Markers.Marker_Ray>(PrefabBase.OverlayRay_CoL);
+                    rotAxisMarker.transform.NestToParent(transform);
+                    rotAxisMarker.transform.localScale = new Vector3(0.25f, 0.25f, 0.25f);
+                    rotAxisMarker.gameObject.SetActive(true);
+                }
+                if (ParentTransform != null) {
+                    rotAxisMarker?.SetMarker(ParentTransform.TransformPoint(parentRotationPoint), ParentTransform.TransformDirection(parentAxis));
+                }
+            }
         }
 
     }

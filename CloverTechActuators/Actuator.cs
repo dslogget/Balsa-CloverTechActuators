@@ -16,7 +16,7 @@ namespace CloverTech
     {
         [SerializeField]
         [CfgField(CfgContext.Config, null, false, null)]
-        bool initialPositionsSet = false;
+        protected bool initialPositionsSet = false;
         [SerializeField]
         [CfgField(CfgContext.Config, null, false, null)]
         protected Vector3 initialPositionToParent;
@@ -32,6 +32,7 @@ namespace CloverTech
         abstract public void OnPartBeginMoveCallback();
         abstract public void OnPartMovingCallback();
         abstract public void OnPartEndMoveCallback();
+        abstract public void OnLateUpdateCallback();
 
         protected void OnEnable() => PartOps.Add((IConstructionEvents)this);
         protected void OnDisable() => PartOps.Remove((IConstructionEvents)this);
@@ -57,8 +58,7 @@ namespace CloverTech
             if (finishedMoving)
             {
                 initialPositionsSet = true;
-                initialPositionToParent = transform.localPosition;
-                initialRotationToParent = transform.localRotation;
+                GetPosRotRelativeToParent(out initialPositionToParent, out initialRotationToParent);
             }
 
             if (initialPositionsSet)
@@ -75,81 +75,22 @@ namespace CloverTech
             {
                 EditorLogic.VAsys?.NeedUpdate();
             }
+            OnLateUpdateCallback();
         }
-
-        public static void RelativeRotateAroundRecursive(Part targetPart, Vector3 worldPoint, Vector3 worldAxis, float angle)
-        {
-            targetPart.transform.RotateAround(worldPoint, worldAxis, angle);
-            foreach (Part link in targetPart.Children)
-            {
-                RelativeRotateAroundRecursive(link, worldPoint, worldAxis, angle);
-            }
-        }
-
-        public static void TranslateByRecursive(Part targetPart, Vector3 worldTranslate)
-        {
-            targetPart.transform.position += worldTranslate;
-            foreach (Part link in targetPart.Children)
-            {
-                TranslateByRecursive(link, worldTranslate);
-            }
-        }
-
-        public static void TranslateRotateRecursive(Part targetPart, Vector3 trans, Quaternion rot)
-        {
-            targetPart.transform.position += trans;
-            targetPart.transform.rotation = rot * targetPart.transform.rotation;
-            foreach (Part link in targetPart.Children)
-            {
-                TranslateRotateRecursive(link, trans, rot);
-            }
-        }
-
 
         public void RotateAround(Vector3 rotPoint, Vector3 rotAxis, float angle)
         {
-            Vector3 startPos = transform.position;
-            Quaternion startRot = transform.rotation;
-            transform.localPosition = initialPositionToParent;
-            transform.localRotation = initialRotationToParent;
-            transform.RotateAround(rotPoint, rotAxis, angle);
-            Vector3 endPos = transform.position;
-            Quaternion endRot = transform.rotation;
-            transform.rotation = startRot;
-            transform.position = startPos;
+            Quaternion rotAngle = Quaternion.AngleAxis(angle, rotAxis);
+            Vector3 endPos = ((ParentTransform.position + initialRotationToParent * initialPositionToParent - rotPoint)) + rotPoint;
+            Quaternion endRot = rotAngle * ParentTransform.rotation * initialRotationToParent;
             part.SetPosRotRecursive(endPos, endRot);
         }
 
         public void ResetToInitial()
         {
-            if (initialPositionToParent == null)
+            if (initialPositionsSet && ParentTransform != null)
             {
-                return;
-            }
-
-            Vector3 diffPos = initialPositionToParent - (transform.position - part.Parent.transform.position);
-            Quaternion diffRot = (part.Parent.transform.rotation.Inverse() * transform.rotation).Inverse() * initialRotationToParent;
-            TranslateRotateRecursive(part, diffPos, diffRot);
-        }
-
-        public void AbsoluteRotateAround(Vector3 worldPoint, Vector3 worldAxis, float angle)
-        {
-            if (!initialPositionsSet)
-            {
-                return;
-            }
-
-            transform.localPosition = initialPositionToParent;
-            transform.localRotation = initialRotationToParent;
-            Vector3 prePos = transform.position;
-            Quaternion preRot = transform.rotation;
-            transform.RotateAround(worldPoint, worldAxis, angle);
-
-            Vector3 diffPos = transform.position - prePos;
-            Quaternion diffRot = preRot.Inverse() * transform.rotation;
-            foreach (Part link in part.Children)
-            {
-                TranslateRotateRecursive(link, diffPos, diffRot);
+                part.SetPosRotRecursive(initialRotationToParent * initialPositionToParent + ParentTransform.position, ParentTransform.rotation * initialRotationToParent);
             }
         }
 
@@ -161,20 +102,28 @@ namespace CloverTech
 
         public void OnPartMoving(Part part, ref Vector3 wpos, ref Quaternion wrot)
         {
-            //initialPositionsSet = true;
-            //initialPositionToParent = transform.localPosition;
-            //initialRotationToParent = transform.localRotation;
             OnPartMovingCallback();
         }
 
         public void OnPartEndMove(Part part)
         {
-            //initialPositionsSet = true;
-            //initialPositionToParent = transform.localPosition;
-            //initialRotationToParent = transform.localRotation;
             OnPartEndMoveCallback();
             finishedMoving = true;
             moving = false;
         }
+
+        public Transform ParentTransform
+        {
+            get { return part.Parent?.transform; }
+        }
+
+        // currentRot = parentRot * rotToParent
+        // parentRot.Inverse() * currentRot = rotToParent
+        public void GetPosRotRelativeToParent(out Vector3 positionToParent, out Quaternion rotationToParent)
+        {
+            positionToParent = transform.position - ParentTransform.position;
+            rotationToParent = ParentTransform.rotation.Inverse() * transform.rotation;
+        }
+
     }
 }
