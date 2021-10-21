@@ -81,7 +81,7 @@ namespace CloverTech
         public void RotateAround(Vector3 rotPoint, Vector3 rotAxis, float angle)
         {
             Quaternion rotAngle = Quaternion.AngleAxis(angle, rotAxis);
-            Vector3 endPos = ((ParentTransform.position + initialRotationToParent * initialPositionToParent - rotPoint)) + rotPoint;
+            Vector3 endPos = (rotAngle * (ParentTransform.TransformPoint(initialPositionToParent) - rotPoint)) + rotPoint;
             Quaternion endRot = rotAngle * ParentTransform.rotation * initialRotationToParent;
             part.SetPosRotRecursive(endPos, endRot);
         }
@@ -90,7 +90,7 @@ namespace CloverTech
         {
             if (initialPositionsSet && ParentTransform != null)
             {
-                part.SetPosRotRecursive(initialRotationToParent * initialPositionToParent + ParentTransform.position, ParentTransform.rotation * initialRotationToParent);
+                part.SetPosRotRecursive(ParentTransform.TransformPoint( initialPositionToParent ), ParentTransform.rotation * initialRotationToParent);
             }
         }
 
@@ -121,7 +121,7 @@ namespace CloverTech
         // parentRot.Inverse() * currentRot = rotToParent
         public void GetPosRotRelativeToParent(out Vector3 positionToParent, out Quaternion rotationToParent)
         {
-            positionToParent = transform.position - ParentTransform.position;
+            positionToParent = ParentTransform.InverseTransformPoint(transform.position);
             rotationToParent = ParentTransform.rotation.Inverse() * transform.rotation;
         }
 
